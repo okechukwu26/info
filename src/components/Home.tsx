@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Typography,
-  Box,
-  OutlinedInput,
-  Card,
-  TextField,
-  FormControl,
-  MenuItem,
-  ListItemText,
-  InputLabel,
-  Button,
-  CircularProgress,
-} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import Card from "@mui/material/Card";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import ListItemText from "@mui/material/ListItemText";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
 import { toast, ToastContainer } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -30,10 +28,10 @@ export interface SECTOR {
 }
 export interface FORM {
   term: boolean;
-  fullName: string;
+  name: string;
 }
-interface ERROR {
-  fullName: string;
+export interface ERROR {
+  name: string;
   sector: string;
   term: string;
 }
@@ -47,21 +45,21 @@ const Home = () => {
   const [form, setForm] = useState({
     term: false,
   } as FORM);
-//   const getSector = async () => {
-//     try {
-//       setLoading(true);
-//       const res = await axiosInstance.get("sector");
+  //   const getSector = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const res = await axiosInstance.get("sector");
 
-//       setSelect(res.data);
-//       setLoading(false);
-//     } catch (error) {
-//       const err = error as AxiosError;
-//       ErrorFunction(err, setLoading, setError);
-//     }
-//   };
+  //       setSelect(res.data);
+  //       setLoading(false);
+  //     } catch (error) {
+  //       const err = error as AxiosError;
+  //       ErrorFunction(err, setLoading, setError);
+  //     }
+  //   };
   useEffect(() => {
     // getSector();
-    GetHook(setLoading, setSelect, setError)
+    GetHook(setLoading, setSelect, setError);
   }, []);
 
   const handleChange = (event: SelectChangeEvent<typeof sector>) => {
@@ -84,8 +82,10 @@ const Home = () => {
     if (checked) {
       setErrors((prev) => ({ ...prev, term: "" }));
     }
-    if (value) {
-      setErrors((prev) => ({ ...prev, fullName: "" }));
+    if (value.length === 0) {
+      setErrors({ ...errors, [name]: "This field is required" });
+    } else {
+      setErrors({ ...errors, [name]: "" });
     }
   };
   const handleSubmit = async (e: FormEvent) => {
@@ -99,16 +99,16 @@ const Home = () => {
     if (sector.length === 0) {
       return setErrors((prev) => ({
         ...prev,
-        sector: "choose atleast one sector",
+        sector: "choose at least one sector",
       }));
     } else {
       setErrors((prev) => ({ ...prev, sector: "" }));
     }
 
-    if (form.fullName === "") {
+    if (!form.name) {
       return setErrors((prev) => ({
         ...prev,
-        fullName: "This field is required",
+        name: "This field is required",
       }));
     }
     try {
@@ -116,12 +116,11 @@ const Home = () => {
       await axiosInstance.post("/user", { ...form, sector });
       toast.success("Saved!");
       setLoading(false);
-      setForm((prev) =>({...prev,fullName:"", term:false}))
+      setForm((prev) => ({ ...prev, name: "", term: false }));
     } catch (error) {
       const err = error as AxiosError;
       ErrorFunction(err, setLoading, setAxiosError);
     }
-    setForm(() =>({fullName:"", term:false}))
   };
   return (
     <>
@@ -194,8 +193,8 @@ const Home = () => {
                   variant="outlined"
                   onChange={handleSelect}
                   name="name"
-                  error={errors.fullName ? true : false}
-                  helperText={errors?.fullName}
+                  error={errors.name ? true : false}
+                  helperText={errors?.name}
                 />
               </FormControl>
               <FormControl
